@@ -10,5 +10,6 @@ data
 runs
 subprojects/*
 !subprojects/*.wrap
+!subprojects/blokusduo
 
 __pycache__

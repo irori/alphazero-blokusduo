@@ -1,0 +1,3 @@
+[submodule "subprojects/blokusduo"]
+	path = subprojects/blokusduo
+	url = https://github.com/irori/blokusduo.git

@@ -18,6 +18,10 @@ gbench_proj = subproject('google-benchmark')
 gbench_main_dep = gbench_proj.get_variable('google_benchmark_main_dep')
 gbench_dep = gbench_proj.get_variable('google_benchmark_dep')
 
+cmake = import('cmake')
+blokusduo_proj = cmake.subproject('blokusduo')
+blokusduo_dep = blokusduo_proj.dependency('blokusduo')
+
 thread_dep = dependency('threads')
 
 lib_args = ['-DBUILDLIB']
@@ -104,6 +108,13 @@ photosynthesis_gs_test = executable(
 )
 test('gtest tests', photosynthesis_gs_test)
 
+blokusduo_gs = library(
+    'blokusduo_gs',
+    'blokusduo_gs.cc',
+    dependencies: [eigen_dep, absl_hash_dep, blokusduo_dep],
+    cpp_args: lib_args,
+)
+
 mcts = library(
     'mcts',
     'mcts.cc',
@@ -161,6 +172,6 @@ play_manager_bench = executable(
 py3_install.extension_module(
   'alphazero',
   sources: ['py_wrapper.cc'],
-  link_with: [connect4_gs, onitama_gs, brandubh_gs, opentafl_gs, tawlbwrdd_gs, play_manager, mcts],
-  dependencies : [pybind11_dep, py3_dep, eigen_dep, absl_container_dep, absl_hash_dep],
+  link_with: [connect4_gs, onitama_gs, brandubh_gs, opentafl_gs, tawlbwrdd_gs, blokusduo_gs, play_manager, mcts],
+  dependencies : [pybind11_dep, py3_dep, eigen_dep, absl_container_dep, absl_hash_dep, blokusduo_dep],
 )

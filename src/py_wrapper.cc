@@ -1,6 +1,7 @@
 #include <cmath>
 
 #include "brandubh_gs.h"
+#include "blokusduo_gs.h"
 #include "connect4_gs.h"
 #include "onitama_gs.h"
 #include "opentafl_gs.h"
@@ -19,6 +20,7 @@ namespace alphazero {
 
 namespace py = pybind11;
 using brandubh_gs::BrandubhGS;
+using blokusduo_gs::BlokusDuoGS;
 using connect4_gs::Connect4GS;
 using onitama_gs::OnitamaGS;
 using opentafl_gs::OpenTaflGS;
@@ -372,6 +374,14 @@ PYBIND11_MODULE(alphazero, m) {
                   [] { return photosynthesis_gs::NUM_SYMMETRIES; })
       .def_static("CANONICAL_SHAPE",
                   [] { return PhotosynthesisGS<4>::CANONICAL_SHAPE; });
+
+  py::class_<BlokusDuoGS, GameState>(m, "BlokusDuoGS")
+      .def(py::init<>())
+      .def_static("NUM_PLAYERS", [] { return blokusduo_gs::NUM_PLAYERS; })
+      .def_static("NUM_MOVES", [] { return blokusduo_gs::BlokusDuoGS::num_possible_moves(); })
+      .def_static("NUM_SYMMETRIES", [] { return blokusduo_gs::NUM_SYMMETRIES; })
+      .def_static("CANONICAL_SHAPE",
+                  [] { return blokusduo_gs::CANONICAL_SHAPE; });
 }
 
 }  // namespace alphazero
