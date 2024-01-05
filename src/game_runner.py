@@ -43,7 +43,7 @@ DATA_WORKERS = os.cpu_count() - 1
 USE_CUDA = torch.cuda.is_available()
 
 # The traditional alphazero parameters.
-EXPECTED_OPENING_LENGTH = 10
+EXPECTED_OPENING_LENGTH = 6
 CPUCT = 1.25
 SELF_PLAY_TEMP = 1.0
 EVAL_TEMP = 0.5
@@ -81,8 +81,8 @@ RESIGN_PERCENT = 0.02
 RESIGN_PLAYTHROUGH_PERCENT = 0.20
 
 # Use this to select what game to train.
-Game = alphazero.Connect4GS
-game_name = 'connect4'
+Game = alphazero.BlokusDuoGS
+game_name = 'blokusduo'
 
 # When you change game, define initialization here.
 # For example some games could change board size or exact ruleset here.

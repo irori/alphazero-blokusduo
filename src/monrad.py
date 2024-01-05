@@ -81,9 +81,9 @@ if __name__ == '__main__':
     rand_agents = []
     agents = rand_agents + nn_agents
 
-    Game = alphazero.Connect4GS
+    Game = alphazero.BlokusDuoGS
     bs = 64
-    nn_mtcs_depth = 200
+    nn_mtcs_depth = 100
 
     if len(agents) % 2 == 1:
         agents.insert(0, "dummy")
