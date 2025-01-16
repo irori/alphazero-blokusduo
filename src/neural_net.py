@@ -11,8 +11,9 @@ from load_lib import load_alphazero
 # This is an autotuner for network speed.
 torch.backends.cudnn.benchmark = True
 
+DEVICE = 'cuda' if torch.cuda.is_available() else 'mps' if torch.backends.mps.is_available() else 'cpu'
 NNArgs = namedtuple('NNArgs', ['num_channels', 'depth', 'kernel_size', 'lr_milestone', 'dense_net',
-                               'lr', 'cv', 'cuda'], defaults=(40, False, 0.01, 1.5, torch.cuda.is_available()))
+                               'lr', 'cv', 'device'], defaults=(40, False, 0.01, 1.5, DEVICE))
 
 
 def conv(in_channels, out_channels, stride=1, kernel_size=3):
@@ -177,10 +178,10 @@ class NNWrapper:
             self.optimizer, lr_lambda=lr_lambda)
         # self.scheduler = optim.lr_scheduler.MultiStepLR(
         #     self.optimizer, milestones=args.lr_milestones, gamma=0.1)
-        self.cuda = args.cuda
+        self.device = args.device
         self.cv = args.cv
-        if self.cuda:
-            self.nnet.cuda()
+        if self.device != 'cpu':
+            self.nnet.to(device=self.device)
 
     def losses(self, dataset):
         self.nnet.eval()
@@ -188,10 +189,10 @@ class NNWrapper:
         l_pi = 0
         for batch in tqdm(dataset, desc='Calculating Sample Loss', leave=False):
             canonical, target_vs, target_pis = batch
-            if self.cuda:
-                canonical = canonical.contiguous().cuda()
-                target_vs = target_vs.contiguous().cuda()
-                target_pis = target_pis.contiguous().cuda()
+            if self.device != 'cpu':
+                canonical = canonical.contiguous().to(device=self.device)
+                target_vs = target_vs.contiguous().to(device=self.device)
+                target_pis = target_pis.contiguous().to(device=self.device)
 
             out_v, out_pi = self.nnet(canonical)
             l_v += self.loss_v(target_vs, out_v).item()
@@ -204,10 +205,10 @@ class NNWrapper:
         i = 0
         for batch in tqdm(dataset, desc='Calculating Sample Loss', leave=False):
             canonical, target_vs, target_pis = batch
-            if self.cuda:
-                canonical = canonical.contiguous().cuda()
-                target_vs = target_vs.contiguous().cuda()
-                target_pis = target_pis.contiguous().cuda()
+            if self.device != 'cpu':
+                canonical = canonical.contiguous().to(device=self.device)
+                target_vs = target_vs.contiguous().to(device=self.device)
+                target_pis = target_pis.contiguous().to(device=self.device)
 
             out_v, out_pi = self.nnet(canonical)
             l_v = self.sample_loss_v(target_vs, out_v)
@@ -235,10 +236,10 @@ class NNWrapper:
                 if current_step == steps_to_train:
                     break
                 canonical, target_vs, target_pis = batch
-                if self.cuda:
-                    canonical = canonical.contiguous().cuda()
-                    target_vs = target_vs.contiguous().cuda()
-                    target_pis = target_pis.contiguous().cuda()
+                if self.device != 'cpu':
+                    canonical = canonical.contiguous().to(device=self.device)
+                    target_vs = target_vs.contiguous().to(device=self.device)
+                    target_pis = target_pis.contiguous().to(device=self.device)
 
                 # reset grad
                 self.optimizer.zero_grad()
@@ -289,8 +290,8 @@ class NNWrapper:
         # start = torch.cuda.Event(enable_timing=True)
         # end = torch.cuda.Event(enable_timing=True)
         # start.record()
-        if self.cuda:
-            batch = batch.contiguous().cuda()
+        if self.device != 'cpu':
+            batch = batch.contiguous().to(device=self.device)
         self.nnet.eval()
         with torch.no_grad():
             v, pi = self.nnet(batch)
@@ -357,8 +358,8 @@ def bench_network():
     cs = Game.CANONICAL_SHAPE()
     dummy_input = torch.randn(
         batch_size, cs[0], cs[1], cs[2], dtype=torch.float)
-    if nnargs.cuda:
-        dummy_input = dummy_input.contiguous().cuda()
+    if nnargs.device != 'cpu':
+        dummy_input = dummy_input.contiguous().to(device=nnargs.device)
 
     starter, ender = torch.cuda.Event(
         enable_timing=True), torch.cuda.Event(enable_timing=True)

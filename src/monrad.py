@@ -1,6 +1,6 @@
 from load_lib import load_alphazero
 import neural_net
-from game_runner import GameRunner, GRArgs, RandPlayer, base_params, elo_prob, USE_CUDA
+from game_runner import GameRunner, GRArgs, RandPlayer, base_params, elo_prob, DEVICE
 import glob
 import os
 import math
@@ -58,7 +58,7 @@ def pit_agents(Game, players, mcts_depths, bs, name):
         pm = alphazero.PlayManager(Game(), params)
 
         grargs = GRArgs(title=f'{name}({i+1}/{np})', game=Game,
-                        max_batch_size=bs, concurrent_batches=cb, result_workers=2, cuda=USE_CUDA)
+                        max_batch_size=bs, concurrent_batches=cb, result_workers=2, device=DEVICE)
         gr = GameRunner(ordered_players, pm, grargs)
         gr.run()
         scores = pm.scores()
